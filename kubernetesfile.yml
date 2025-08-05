@@ -16,7 +16,7 @@ spec:
         - name: insurance-container
           image: vardaandocker/insurance-tuesday:1.0
           ports:
-            - containerPort: 8080
+            - containerPort: 8081
 ---
 apiVersion: v1
 kind: Service
@@ -28,5 +28,5 @@ spec:
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8080
+      targetPort: 8081
   type: LoadBalancer
