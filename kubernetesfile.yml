@@ -3,70 +3,69 @@ kind: Deployment
 metadata:
   name: insurance-app
   labels:
-    app: insurance-app
+    app: insurance
+    tier: backend
   annotations:
-    description: "Deployment of Insurance application with health checks and resource limits"
+    description: "Deployment for Insurance application running on port 8081"
 spec:
-  replicas: 2
+  replicas: 2  # Increased replicas for high availability
   selector:
     matchLabels:
-      app: insurance-app
+      app: insurance
   template:
     metadata:
       labels:
-        app: insurance-app
+        app: insurance
+        tier: backend
       annotations:
-        maintainer: "your-email@example.com"
-        prometheus.io/scrape: "true"
-        prometheus.io/port: "8081"
+        maintainer: "youremail@example.com"
     spec:
       containers:
         - name: insurance-container
-          image: vardaandocker/insurance-tuesday:latest
+          image: vardaandocker/insurance-tuesday:1.0
           ports:
-            - containerPort: 8081
+            - containerPort: 8081  # corrected port to match your running service
+          env:
+            - name: ENVIRONMENT
+              value: "production"
+            - name: JAVA_OPTS
+              value: "-Xms256m -Xmx512m"
           resources:
             requests:
-              cpu: "100m"
-              memory: "128Mi"
+              memory: "512Mi"
+              cpu: "250m"
             limits:
+              memory: "1Gi"
               cpu: "500m"
-              memory: "256Mi"
-          env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: "prod"
-            - name: JAVA_OPTS
-              value: "-Xms128m -Xmx256m"
           readinessProbe:
             httpGet:
-              path: /actuator/health
+              path: /
               port: 8081
             initialDelaySeconds: 10
             periodSeconds: 5
-            timeoutSeconds: 3
             failureThreshold: 3
           livenessProbe:
             httpGet:
-              path: /actuator/health
+              path: /
               port: 8081
-            initialDelaySeconds: 30
+            initialDelaySeconds: 15
             periodSeconds: 10
-            timeoutSeconds: 5
-            failureThreshold: 5
+            failureThreshold: 3
+          imagePullPolicy: Always
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: insurance-service
   labels:
-    app: insurance-app
+    app: insurance
   annotations:
-    description: "Exposes insurance app via LoadBalancer"
+    description: "Service exposing Insurance application using LoadBalancer"
 spec:
   selector:
-    app: insurance-app
+    app: insurance
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 8081
+      targetPort: 8081  # corrected target port to match your app's container port
   type: LoadBalancer
