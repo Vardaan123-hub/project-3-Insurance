@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
         - name: insurance-container
-          image: vardaandocker/insurance-tuesday:1.0
+          image: vardaandocker/insurance-tuesday:latest
           ports:
             - containerPort: 8081
           resources:
